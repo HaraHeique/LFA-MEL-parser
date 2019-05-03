@@ -26,7 +26,7 @@ class ParserMEL:
         self.__nextSymbol()
         self.__expr()
 
-        # o currentSymbol não ficou no valor final que seria None
+        # o currentSymbol não ficou no valor final que seria None, logo lança uma exceção
         if (self._currentSymbol != None):
             raise Exception("Something wrong happened. This is not a valid input expression.")
 
@@ -49,7 +49,7 @@ class ParserMEL:
             self.__checkExpectSymbolDividBy()
 
     # Checa se todas os símbolos da Input Expression foi lido
-    def __readAllSymbols(self):
+    def __readAllSymbols(self) -> bool:
         return self._currentIndex >= len(self._inputExpr)
 
     # Checa se o símbolo corrente é o mesmo que o símbolo esperado naquele momento do parser e passa para próximo símbolo
@@ -75,62 +75,95 @@ class ParserMEL:
     # Métodos dos símbolos não-terminais 
     
     # Regra: <term> ((‘+’ | ‘-’) <term>)*
-    def __expr(self) -> bool:
+    def __expr(self) -> float:
         # <term>
-        self.__term()
+        leftTermValue: float = self.__term()
 
         # ((‘+’ | ‘-’) <term>)*
         termSymbols: tuple = ('+', '-')
         while True:
+            # Guarda o possível operador antes do símbolo corrente passar para o próximo símbolo
+            termOperator: str = self._currentSymbol
+
             if (self.__checkExpectedSymbols(termSymbols)):
-                self.__term()
+                rightTermValue: float = self.__term()
+
+                if (termOperator == '+'):
+                    leftTermValue += rightTermValue
+                elif (termOperator == '-'):
+                    leftTermValue -= rightTermValue
+                else:
+                    raise Exception("Invalid term calculation operator")
             else:
                 break
         
-        return True
+        return leftTermValue
 
     # Regra: <factor> ((‘*’ | ‘/’ | ‘//’ | ‘%’) <factor>)*
-    def __term(self) -> None:
+    def __term(self) -> float:
         # <factor>
-        self.__factor()
+        leftFactorValue: float = self.__factor()
 
         # ((‘*’ | ‘/’ | ‘//’ | ‘%’) <factor>)*
         factorSymbols: tuple = ('*', '/', '//', '%')
         while True:
+            # Guarda o possível operador antes do símbolo corrente passar para o próximo símbolo
+            factorOperator: str = self._currentSymbol
+
             if (self.__checkExpectedSymbols(factorSymbols)):
-                self.__factor()
+                rightFactorValue: float = self.__factor()
+
+                if (factorOperator == '*'):
+                    leftFactorValue *= rightFactorValue
+                elif (factorOperator == '/'):
+                    leftFactorValue /= rightFactorValue
+                elif (factorOperator == '//'):
+                    leftFactorValue //= rightFactorValue
+                elif (factorOperator == '%'):
+                    leftFactorValue %= rightFactorValue
+                else:
+                    raise Exception("Invalid factor calculation operator")
             else:
                 break
+        
+        return leftFactorValue
     
     # Regra: <base> (‘^’ <factor>)?
-    def __factor(self) -> None:
-        self.__base()
+    def __factor(self) -> float:
+        # <base>
+        baseValue: float = self.__base()
 
         # (‘^’ <factor>)?
         if (self.__expectSymbol('^')):
-            self.__factor()
+            return self.__factor()
+
+        return baseValue
 
     # Regra: (‘+’ | ‘-’) <base> | <number> | ‘(’ <expr> ‘)’
-    def __base(self) -> bool:
+    def __base(self) -> float:
         # (‘+’ | ‘-’) <base>
         addSubSymbols: tuple = ('+', '-')
-        if (self.__checkExpectedSymbols(addSubSymbols) and self.__base()):
-            return True
+        if (self.__checkExpectedSymbols(addSubSymbols)):
+            return self.__base()
 
         # ‘(’ <expr> ‘)’
-        if (self.__expectSymbol('(') and self.__expr() and self.__expectSymbol(')')):
-            return True
+        if (self.__expectSymbol('(')):
+            exprValue: float = self.__expr()
+            if (self.__expectSymbol(')')):
+                return exprValue
 
         # <number>
-        if (self.__number()):
-            return True
+        return self.__number()
 
-        raise Exception("Error. Unexpected base symbol. Please check your expression!")
+        #raise Exception("Error. Unexpected base symbol. Please check your expression!")
 
     # Regra: <digit>+ ‘.’? <digit>* ((‘E’ | ‘e’)(‘+’ | ‘-’)? <digit>+)?
-    def __number(self) -> bool:
+    def __number(self) -> float:
+        # Armazena o index inicial do number
+        indexInit: int = self._currentIndex - 1
+
         # <digit>+
-        self.__digit(True) # Valida somente para o primeiro dígito que é obrigatório
+        self.__digit(True)
 
         # Para os demais dígitos opcionais
         while True:
@@ -162,7 +195,7 @@ class ParserMEL:
                 if (not self.__digit(False)):
                     break
 
-        return True
+        return float(self._inputExpr[indexInit:self._currentIndex])
     
     # Regra: ‘0’ | ‘1’ | ‘2’ | ‘3’ | ‘4’ | ‘5’ | ‘6’ | ‘7’ | ‘8’ | ‘9’
     def __digit(self, isRequired: bool) -> bool:
