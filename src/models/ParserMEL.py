@@ -188,7 +188,7 @@ if __name__ == '__main__' :
                          "((3) - 32",
                          "3^2+5*(2-5)",
                          "3^2+5(2-5)",
-                         "8^-2 + 2E1 * 2e-1 + 3e+3 // 2.012",
-                         "8^2 + 2E1 * 2e-1 + 3e+3 // 2."]
+                         "-8^-2 + 2E1 * 2e-1 + 3e+3 // 2.012",
+                         "+8^2 + 2E1 * 2e-1 + 3e+3 // 2."]
     parserMEL.parseExpression(expressions[8])
     print("Expression: {0} = {1}".format(parserMEL.expression, parserMEL.result))
