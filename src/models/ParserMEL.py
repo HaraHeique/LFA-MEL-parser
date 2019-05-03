@@ -24,13 +24,13 @@ class ParserMEL:
     def parseExpression(self, inputExpr: str) -> float:
         self.__filterInputExpression(inputExpr)
         self.__nextSymbol()
-        self.__expr()
+        self._expressionResult = self.__expr()
 
         # o currentSymbol não ficou no valor final que seria None, logo lança uma exceção
         if (self._currentSymbol != None):
             raise Exception("Something wrong happened. This is not a valid input expression.")
 
-        return 0.0
+        return self._expressionResult
 
     # MÉTODOS PRIVADOS
 
@@ -135,16 +135,21 @@ class ParserMEL:
 
         # (‘^’ <factor>)?
         if (self.__expectSymbol('^')):
-            return self.__factor()
+            return baseValue ** (self.__factor())
 
         return baseValue
 
     # Regra: (‘+’ | ‘-’) <base> | <number> | ‘(’ <expr> ‘)’
     def __base(self) -> float:
         # (‘+’ | ‘-’) <base>
-        addSubSymbols: tuple = ('+', '-')
-        if (self.__checkExpectedSymbols(addSubSymbols)):
-            return self.__base()
+        plusMinusSymbols: tuple = ('+', '-')
+        # Guarda o possível operador antes do símbolo corrente passar para o próximo símbolo
+        baseOperator: str = self._currentSymbol
+        if (self.__checkExpectedSymbols(plusMinusSymbols)):
+            if (baseOperator == '+'):
+                return self.__base()
+            elif (baseOperator == '-'):
+                return (-1) * self.__base()
 
         # ‘(’ <expr> ‘)’
         if (self.__expectSymbol('(')):
@@ -194,8 +199,11 @@ class ParserMEL:
             while True:
                 if (not self.__digit(False)):
                     break
+        
+        #Armazena o index final do number
+        indexEnd: int = self._currentIndex - 1 if (self._currentIndex != 0) else len(self._inputExpr)
 
-        return float(self._inputExpr[indexInit:self._currentIndex])
+        return float(self._inputExpr[indexInit : indexEnd])
     
     # Regra: ‘0’ | ‘1’ | ‘2’ | ‘3’ | ‘4’ | ‘5’ | ‘6’ | ‘7’ | ‘8’ | ‘9’
     def __digit(self, isRequired: bool) -> bool:
@@ -214,14 +222,17 @@ class ParserMEL:
 if __name__ == '__main__' :
     #parserMEL: ParserMEL = ParserMEL("32.4 % 32 / 2")
     parserMEL: ParserMEL = ParserMEL()
-    expressions: list = ["34 + 213 + 2.12 / 21",
+    expressions: list = ["2 + 2",
+                         "3 * 23",
+                         "3 - 2 * 7",
+                         "34 + 213 + 2.12 / 21",
                          "10 * 5 + 100 / 10 - 5 + 7 % 2",
                          "(10) * 5)) + (100 // 10)( - 5 + (7 % 2)",
-                         "(34) + 21 // (43 % 2)",
+                         "-(100) + 21 / (43 % 2)",
                          "((3) - 32",
-                         "3^2+5*(2-5)",
+                         "(-3)^4+5*(2-5)",
                          "3^2+5(2-5)",
                          "8^-2 + 2E1 * 2e-1 + 3e+3 // 2.012",
                          "8^2 + 2E1 * 2e-1 + 3e+3 // 2."]
-    parserMEL.parseExpression(expressions[8])
+    parserMEL.parseExpression(expressions[10])
     print("Expression: {0} = {1}".format(parserMEL.expression, parserMEL.result))
