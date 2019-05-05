@@ -222,7 +222,7 @@ class ParserMEL:
 
 # Para testes unitário do módulo
 if __name__ == '__main__' :
-    parserMEL1: ParserMEL = ParserMEL("2E")
+    parserMEL1: ParserMEL = ParserMEL("2E-1")
     print("Expression: {0} = {1}".format(parserMEL1.expression, parserMEL1.result))
 
     parserMEL: ParserMEL = ParserMEL()
