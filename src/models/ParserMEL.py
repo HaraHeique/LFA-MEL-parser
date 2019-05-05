@@ -11,7 +11,7 @@ class ParserMEL:
         self._currentSymbol: str
         self._currentIndex: int = 0
         self._expressionResult: float = self.parseExpression(self._inputExpr) if (self._inputExpr != None) else 0.0
-    
+
     @property
     def expression(self) -> str:
         return self._inputExpr
@@ -71,9 +71,9 @@ class ParserMEL:
         if (self._currentSymbol == '/') and (self._inputExpr[self._currentIndex] == '/'):
             self._currentSymbol = '//'
             self._currentIndex += 1
-            
-    # Métodos dos símbolos não-terminais 
-    
+
+    # Métodos dos símbolos não-terminais
+
     # Regra: <term> ((‘+’ | ‘-’) <term>)*
     def __expr(self) -> float:
         # <term>
@@ -96,7 +96,7 @@ class ParserMEL:
                     raise Exception("Invalid term calculation operator")
             else:
                 break
-        
+
         return leftTermValue
 
     # Regra: <factor> ((‘*’ | ‘/’ | ‘//’ | ‘%’) <factor>)*
@@ -125,9 +125,9 @@ class ParserMEL:
                     raise Exception("Invalid factor calculation operator")
             else:
                 break
-        
+
         return leftFactorValue
-    
+
     # Regra: <base> (‘^’ <factor>)?
     def __factor(self) -> float:
         # <base>
@@ -150,6 +150,8 @@ class ParserMEL:
                 return self.__base()
             elif (baseOperator == '-'):
                 return (-1) * self.__base()
+            else:
+                raise Exception("Invalid base calculation operator")
 
         # ‘(’ <expr> ‘)’
         if (self.__expectSymbol('(')):
@@ -174,7 +176,7 @@ class ParserMEL:
         while True:
             if (not self.__digit(False)):
                 break
-        
+
         # ‘.’? <digit>*
         if (self.__expectSymbol('.')):
             # <digit>* - Para dígitos opcionais
@@ -184,12 +186,12 @@ class ParserMEL:
 
         # ((‘E’ | ‘e’)(‘+’ | ‘-’)? <digit>+)?
         eulerSymbols: tuple = ('E', 'e')
-        addSubSymbols: tuple = ('+', '-')
+        plusMinusSymbols: tuple = ('+', '-')
 
         # (‘E’ | ‘e’)
         if (self.__checkExpectedSymbols(eulerSymbols)):
             # (‘+’ | ‘-’)?
-            if (self.__checkExpectedSymbols(addSubSymbols)):
+            if (self.__checkExpectedSymbols(plusMinusSymbols)):
                 pass
 
             # <digit>+
@@ -199,12 +201,12 @@ class ParserMEL:
             while True:
                 if (not self.__digit(False)):
                     break
-        
+
         #Armazena o index final do number
-        indexEnd: int = self._currentIndex - 1 if (self._currentIndex != 0) else len(self._inputExpr)
+        indexEnd: int = self._currentIndex - (1 if (self._currentSymbol != '//') else 2) if (self._currentIndex != 0) else len(self._inputExpr)
 
         return float(self._inputExpr[indexInit : indexEnd])
-    
+
     # Regra: ‘0’ | ‘1’ | ‘2’ | ‘3’ | ‘4’ | ‘5’ | ‘6’ | ‘7’ | ‘8’ | ‘9’
     def __digit(self, isRequired: bool) -> bool:
         validDigits: tuple = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
@@ -214,25 +216,34 @@ class ParserMEL:
         # Caso seja um dígito requerido e não consegue identificá-lo como esperado então é uma exception
         if (isRequired):
             raise Exception("Error. Unexpected digit symbol. Please check your expression!")
-        
+
         return False
 
 
 # Para testes unitário do módulo
 if __name__ == '__main__' :
-    #parserMEL: ParserMEL = ParserMEL("32.4 % 32 / 2")
+    parserMEL1: ParserMEL = ParserMEL("2E")
+    print("Expression: {0} = {1}".format(parserMEL1.expression, parserMEL1.result))
+
     parserMEL: ParserMEL = ParserMEL()
     expressions: list = ["2 + 2",
                          "3 * 23",
                          "3 - 2 * 7",
+                         "2 // 20",
+                         "++++++2 - 4.0 / ----1.",
                          "34 + 213 + 2.12 / 21",
                          "10 * 5 + 100 / 10 - 5 + 7 % 2",
-                         "(10) * 5)) + (100 // 10)( - 5 + (7 % 2)",
+                         "(10) * 5 + (100 // 10) - 5 + (7 % 2)",
+                         "-((2+2)*2)-((2-0)+2)",
+                         "(2.*(2.0+2.))-(2.0+(2.-0))",
                          "-(100) + 21 / (43 % 2)",
-                         "((3) - 32",
-                         "(-3)^4+5*(2-5)",
-                         "3^2+5(2-5)",
-                         "8^-2 + 2E1 * 2e-1 + 3e+3 // 2.012",
-                         "8^2 + 2E1 * 2e-1 + 3e+3 // 2."]
-    parserMEL.parseExpression(expressions[10])
-    print("Expression: {0} = {1}".format(parserMEL.expression, parserMEL.result))
+                         "-3^4+5*(2-5)",
+                         "3^2+5//(2-5)",
+                         "0.02e2 + 0.02e-2",
+                         "8^-2 + 2E1 * 2e-1 + 3e+3 / 2.012",
+                         "8^2 + 2E1 * 2e-1 + 3e+3 // 2.",
+                         "(-2.3)^2 + 2.2E1 * 2e-12 + 1e+3"]
+
+    for expr in expressions:
+        parserMEL.parseExpression(expr)
+        print("Expression: {0} = {1}".format(parserMEL.expression, parserMEL.result))
