@@ -79,7 +79,7 @@ if __name__ == '__main__' :
 ```
 
 ### Como executar?
-Para buildar/executar o app no ambiente Linux basta abrir o CLI(Command Line Interface) no diretório __/src__ e digitar o seguinte comando:
+Para buildar/executar o app no ambiente Linux basta abrir o CLI(Command Line Interface) no diretório __/source__ e digitar o seguinte comando:
     
     python3 build.py
 
