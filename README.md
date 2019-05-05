@@ -1,5 +1,5 @@
 # LFA-MEL-parser
-Implementação de um parser descendente recursivo para uma Linguagem Livre de Contexto, chamada de MEL
+Implementação de um parser descendente recursivo para uma Linguagem Livre de Contexto, chamada de MEL.
 
 ### Informações gerais
 - **Autor**: Harã Heique dos Santos
@@ -46,7 +46,7 @@ class ParserMEL:
 A parte do código acima contém o construtor da classe que contém a expressão de entrada(inputExpr), o símbolo corrente que está sendo lido(currentSymbol), a posição corrente(currentIndex) em que se encontra o símbolo e por fim o valor da expressão dada como entrada(expressionResult).
 
 O trecho também mostra o único método público que a classe possui chamada `parseExpression`, o qual é chamado passando uma expressão matemática de entrada e resolvendo até achar um valor que é retornado ou ignorar a expressão por ela ser inválida.
-Com a chamada desse método será invocada todas as outras funções do código seguindo as regras de produção definidas para a gramática que é mostrada na figura abaixo.
+Com a chamada desse método será invocada todas as outras funções da classe seguindo as regras de produção definidas para a gramática que é mostrada logo abaixo.
 
 <p align="center">
   <img src="https://github.com/HaraHeique/LFA-MEL-parser/blob/master/images/Regra%20de%20produ%C3%A7%C3%A3o%20da%20gram%C3%A1tica%20MEL.png?raw=true">
@@ -79,11 +79,11 @@ if __name__ == '__main__' :
 ```
 
 ### Como executar?
-Para buildar/executar o app basta abrir o CLI(Command Line Terminal) no diretório __/src__ e digitar o seguinte comando:
+Para buildar/executar o app no ambiente Linux basta abrir o CLI(Command Line Interface) no diretório __/src__ e digitar o seguinte comando:
     
     python3 build.py
 
-Neste comando como o SO é o Linux dist. Ubuntu 18.04 e já contém as versões 2.7.15 e 3.6.7 como default torna fácil a execução de código utilizando esta linguagem. O outro comando seria a execução do arquivo .sh criado no mesmo diretório. Abaixo execute o mesmo comando que produzirá a mesma ação do primeiro comando mostrado acima:
+Neste comando como o SO é o Linux dist. Ubuntu 18.04 e já contém as versões ***2.7.15 e 3.6.7*** como default, o que torna fácil a execução de código utilizando esta linguagem. O outro comando seria a execução do arquivo .sh criado no mesmo diretório. Abaixo execute o mesmo comando que produzirá a mesma ação do primeiro comando mostrado acima:
 
     sh trab1.sh
     
