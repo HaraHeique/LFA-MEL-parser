@@ -8,7 +8,7 @@
 class ParserMEL:
     def __init__(self, inputExpr: str = None):
         self._inputExpr: str = inputExpr if (inputExpr != None) else None
-        self._currentSymbol: str
+        self._currentSymbol: str = ''
         self._currentIndex: int = 0
         self._expressionResult: float = self.parseExpression(self._inputExpr) if (self._inputExpr != None) else 0.0
 
@@ -23,6 +23,7 @@ class ParserMEL:
     # Faz o parse da expressão passada como argumento
     def parseExpression(self, inputExpr: str) -> float:
         self.__filterInputExpression(inputExpr)
+        self.__resetSymbol()
         self.__nextSymbol()
         self._expressionResult = self.__expr()
 
@@ -37,6 +38,11 @@ class ParserMEL:
     # Filtra espaços em branco, tabulações e afins da expressão de entrada
     def __filterInputExpression(self, inputExpr: str) -> None:
         self._inputExpr = "".join(inputExpr.split())
+
+    # Reseta para o valor default tanto o currentSymbol quanto o currentIndex
+    def __resetSymbol(self) -> None:
+        self._currentIndex = 0
+        self._currentSymbol = ''
 
     # Seta o próximo símbolo em __currentSymbol que é o caractere da indice corrente do objeto
     def __nextSymbol(self) -> None:
