@@ -10,4 +10,3 @@ Implementação de um parser descendente recursivo para uma Linguagem Livre de C
 O código fonte está estruturado da seguinte maneira:
 
 ![Code structure](https://raw.githubusercontent.com/HaraHeique/LFA-MEL-parser/master/images/Estrutura%20do%20src.png)
-
